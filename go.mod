@@ -1,3 +1,3 @@
-module snippetbox.kohry.net
+module github.com/kohrongying/snippetbox
 
 go 1.18
