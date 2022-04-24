@@ -8,6 +8,26 @@ go run .
 go run github.com/kohrongying/snippetbox
 go run main.go
 ```
-- Go's servemux supports
+#### Go's servemux 
+- supports
 1. fixed path (eg. /snippet/view, /snippet/create)
 2. subtree path (end with trailing slash) (eg. home)
+- Servemux dispatch request to the handler with longest corresponding pattern. --> can register patterns and handlers in any order
+- Request URL auto sanitized eg. /foo/bar/./../baz --> /foo/bar/baz 301
+- Subtree path request without / eg. /foo --> 301 to /foo/
+- Pattern matching --> host specific checked first, then non-host specific patterns next.
+
+#### http.ResponseWriter
+- if do not explicitly state w.WriteHeader (eg. w.WriteHeader(405)), error will return with 200 
+```
+w.WriteHeader(405)
+w.Write([]byte("Method not supported"))
+
+#same as
+http.Error(w, "Method not supported" , 405)
+```
+- Go sends system generated response headers (Date,  Content-Length and Content-Type).
+Headers can be manipulated by
+`w.Headers().Get(<key>)`, `w.Headers().Set(<key>, <value>)`, `w.Headers().Add(<key>, <value>)`, `w.Headers().Del(<key>)`
+If suppress the sys generataed ones: `w.Header()["Date"] = nil`
+
