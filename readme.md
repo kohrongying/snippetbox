@@ -30,9 +30,11 @@ http.Error(w, "Method not supported" , 405)
 Headers can be manipulated by
 `w.Headers().Get(<key>)`, `w.Headers().Set(<key>, <value>)`, `w.Headers().Add(<key>, <value>)`, `w.Headers().Del(<key>)`
 If suppress the sys generataed ones: `w.Header()["Date"] = nil`
+- fmt.Fprintf takes a io.Writer but able to pass http.ResponseWRiter object, as io.Writer is an interface and http.ResponseWriter satisfies as it as a w.Write method. 
 
-fmt.Fprintf takes a io.Writer but able to pass http.ResponseWRiter object, as io.Writer is an interface and http.ResponseWriter satisfies as it as a w.Write method. 
-
+#### Requests
+All incoming HTTP requests are served in their own goroutine --> concurrency needs to be handled. Race conditions.
+#### Structure
 cmd - applicable specific code
 | web - only one executable
     | handlers.go, main.go

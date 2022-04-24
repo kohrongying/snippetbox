@@ -9,6 +9,9 @@ func main() {
 	mux := http.NewServeMux()
 	
 	// handlers 
+	// same as mux.Handle("/", &home{}) or
+	// same as mux.Handle("/", http.HandlerFunc(home))
+	// home -> func (h *home) ServeHTTP(w, r)
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 	// slash is a catch all. eg. /foo, /bash --> home
