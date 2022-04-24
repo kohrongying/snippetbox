@@ -9,9 +9,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("hello from snippetbox"))
 }
 
+func snippetView(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("display a specific snippet"))
+}
+
+func snippetCreate(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("create a new snippet"))
+}
+
 func main() {
 	mux := http.NewServeMux()
 	
+	// handlers 
+	mux.HandleFunc("/snippet/view", snippetView)
+	mux.HandleFunc("/snippet/create", snippetCreate)
 	// slash is a catch all. eg. /foo, /bash --> home
 	mux.HandleFunc("/", home) 
 
