@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -13,7 +15,23 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("hello from snippetbox"))
+	// parse template and catch error
+	files := []string{
+		"./ui/html/base.tmpl", // base must be first
+		"./ui/html/pages/home.tmpl",
+	}
+	ts, err := template.ParseFiles(files...) //pass as variadic parameter
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", nil) // use content of base template to response which invokes title and main templates
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+	}
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
