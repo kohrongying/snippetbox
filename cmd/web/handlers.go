@@ -18,6 +18,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// parse template and catch error
 	files := []string{
 		"./ui/html/base.tmpl", // base must be first
+		"./ui/html/partials/nav.tmpl",
 		"./ui/html/pages/home.tmpl",
 	}
 	ts, err := template.ParseFiles(files...) //pass as variadic parameter
