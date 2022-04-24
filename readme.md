@@ -10,8 +10,8 @@ go run main.go
 ```
 #### Go's servemux 
 - supports
-1. fixed path (eg. /snippet/view, /snippet/create)
-2. subtree path (end with trailing slash) (eg. home)
+    1. fixed path (eg. /snippet/view, /snippet/create)
+    2. subtree path (end with trailing slash) (eg. home)
 - Servemux dispatch request to the handler with longest corresponding pattern. --> can register patterns and handlers in any order
 - Request URL auto sanitized eg. /foo/bar/./../baz --> /foo/bar/baz 301
 - Subtree path request without / eg. /foo --> 301 to /foo/
@@ -19,7 +19,7 @@ go run main.go
 
 #### http.ResponseWriter
 - if do not explicitly state w.WriteHeader (eg. w.WriteHeader(405)), error will return with 200 
-```
+```go
 w.WriteHeader(405)
 w.Write([]byte("Method not supported"))
 
@@ -31,3 +31,12 @@ Headers can be manipulated by
 `w.Headers().Get(<key>)`, `w.Headers().Set(<key>, <value>)`, `w.Headers().Add(<key>, <value>)`, `w.Headers().Del(<key>)`
 If suppress the sys generataed ones: `w.Header()["Date"] = nil`
 
+fmt.Fprintf takes a io.Writer but able to pass http.ResponseWRiter object, as io.Writer is an interface and http.ResponseWriter satisfies as it as a w.Write method. 
+
+cmd - applicable specific code
+| web - only one executable
+    | handlers.go, main.go
+
+internal - non-applicable specific code
+
+ui/html, ui/static
