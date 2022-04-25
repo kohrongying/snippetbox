@@ -34,6 +34,7 @@ If suppress the sys generataed ones: `w.Header()["Date"] = nil`
 
 #### Requests
 All incoming HTTP requests are served in their own goroutine --> concurrency needs to be handled. Race conditions.
+
 #### Structure
 cmd - applicable specific code
 | web - only one executable
@@ -42,3 +43,8 @@ cmd - applicable specific code
 internal - non-applicable specific code
 
 ui/html, ui/static
+
+#### Logging
+- Recommened to use Panic and Fatal in main() and not elsewhere
+- Custom loggers are concurrency safe. Share a single logger across multiple goroutines
+- Log output to standard streams and redirect output to file at runtime eg. `go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log`
