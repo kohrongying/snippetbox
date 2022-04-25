@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/kohrongying/snippetbox/internal/models"
+
 	_ "github.com/lib/pq"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -35,6 +38,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	// Initialise http.Server struct
