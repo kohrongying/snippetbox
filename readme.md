@@ -88,3 +88,7 @@ grant select, insert, update, delete on all tables in schema public to web;
 - Command: `go get github.com/lib/pq@v1.10.5`
 - Updates go.mod and creates go.sum files
 - Import path for driver prefixed with underscore. our `main.go` file does not use anything in that package, without the _, Go compiler will raise error. We need driver's init() function to run so that it can register itself with database/sql package.
+
+#### html/tmeplate
+- automatically escapes data yielded between {{}} to prevent cross site scripting (XSS)
+- Strips out any html comments in your templates (including conditional comments), help avoid XSS

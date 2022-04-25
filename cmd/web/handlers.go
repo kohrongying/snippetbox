@@ -22,25 +22,26 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}
 	// parse template and catch error
-	// files := []string{
-	// 	"./ui/html/base.tmpl", // base must be first
-	// 	"./ui/html/partials/nav.tmpl",
-	// 	"./ui/html/pages/home.tmpl",
-	// }
-	// ts, err := template.ParseFiles(files...) //pass as variadic parameter
-	// if err != nil {
-	// 	app.serverError(w, err) // home handler is method against application, can access its fields
-	// 	return
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", nil) // use content of base template to response which invokes title and main templates
-	// if err != nil {
-	// 	app.serverError(w,err)
-	// }
+	files := []string{
+		"./ui/html/base.tmpl", // base must be first
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/home.tmpl",
+	}
+	ts, err := template.ParseFiles(files...) //pass as variadic parameter
+	if err != nil {
+		app.serverError(w, err) // home handler is method against application, can access its fields
+		return
+	}
+	
+	data := &templateData {
+		Snippets: snippets,
+	}
+	
+	err = ts.ExecuteTemplate(w, "base", data) // use content of base template to response which invokes title and main templates
+	if err != nil {
+		app.serverError(w,err)
+	}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +73,11 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base", snippet)
+	data := &templateData {
+		Snippet: snippet,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serverError(w, err)
 		return	
