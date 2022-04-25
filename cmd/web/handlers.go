@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	// "html/template"
+	"html/template"
 	"net/http"
 	"strconv"
 	"github.com/kohrongying/snippetbox/internal/models"
@@ -60,7 +60,23 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Fprintf(w, "%+v", snippet)
+
+	files := []string{
+		"./ui/html/base.tmpl", // base must be first
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/view.tmpl",
+	}
+	ts, err := template.ParseFiles(files...) //pass as variadic parameter
+	if err != nil {
+		app.serverError(w, err) // home handler is method against application, can access its fields
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", snippet)
+	if err != nil {
+		app.serverError(w, err)
+		return	
+	}
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
