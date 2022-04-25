@@ -48,3 +48,43 @@ ui/html, ui/static
 - Recommened to use Panic and Fatal in main() and not elsewhere
 - Custom loggers are concurrency safe. Share a single logger across multiple goroutines
 - Log output to standard streams and redirect output to file at runtime eg. `go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log`
+
+### psql
+```sql
+create database snippetbox
+\c snippetbox
+CREATE TABLE snippets (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    created TIMESTAMPTZ NOT NULL,
+    expires TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX idx_snippets_created ON snippets(created);
+INSERT INTO snippets (title, content, created, expires) VALUES (
+    'An old silent pond',
+    'An old silent pond...\nA frog jumps into the pond,\nsplash! Silence again.\n\n– Matsuo Bashō',
+    now(),
+    NOW() + INTERVAL '5 DAY'
+),
+ (
+    'Over the wintry forest',
+    'Over the wintry\nforest, winds howl in rage\nwith no leaves to blow.\n\n– Natsume Soseki',
+    now(),
+    NOW() + INTERVAL '5 DAY'
+),
+(
+    'First autumn morning',
+    'First autumn morning\nthe mirror I stare into\nshows my father''s face.\n\n– Murakami Kijo',
+    now(),
+    NOW() + INTERVAL '5 DAY'
+);
+CREATE USER web;
+grant connect on database snippetbox to web;
+grant select, insert, update, delete on all tables in schema public to web;
+```
+
+#### Get psql driver
+- Command: `go get github.com/lib/pq@v1.10.5`
+- Updates go.mod and creates go.sum files
+- Import path for driver prefixed with underscore. our `main.go` file does not use anything in that package, without the _, Go compiler will raise error. We need driver's init() function to run so that it can register itself with database/sql package.
