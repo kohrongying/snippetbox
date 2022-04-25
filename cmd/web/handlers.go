@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
+	// "html/template"
 	"net/http"
 	"strconv"
 	"github.com/kohrongying/snippetbox/internal/models"
@@ -16,22 +16,31 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// parse template and catch error
-	files := []string{
-		"./ui/html/base.tmpl", // base must be first
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-	ts, err := template.ParseFiles(files...) //pass as variadic parameter
-	if err != nil {
-		app.serverError(w, err) // home handler is method against application, can access its fields
+	snippets, err := app.snippets.Latest()
+	if err != nil { 
+		app.serverError(w, err)
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base", nil) // use content of base template to response which invokes title and main templates
-	if err != nil {
-		app.serverError(w,err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
 	}
+	// parse template and catch error
+	// files := []string{
+	// 	"./ui/html/base.tmpl", // base must be first
+	// 	"./ui/html/partials/nav.tmpl",
+	// 	"./ui/html/pages/home.tmpl",
+	// }
+	// ts, err := template.ParseFiles(files...) //pass as variadic parameter
+	// if err != nil {
+	// 	app.serverError(w, err) // home handler is method against application, can access its fields
+	// 	return
+	// }
+
+	// err = ts.ExecuteTemplate(w, "base", nil) // use content of base template to response which invokes title and main templates
+	// if err != nil {
+	// 	app.serverError(w,err)
+	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -45,8 +54,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord)  {
 			app.notFound(w)
+			return
 		} else {
 			app.serverError(w, err)
+			return
 		}
 	}
 	fmt.Fprintf(w, "%+v", snippet)
