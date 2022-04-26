@@ -4,7 +4,8 @@ import (
 	"net/http"
 )
 
-func (app *application) routes() *http.ServeMux {
+// for middleware, change return type from servemux to http.handler
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	// same as mux.Handle("/", &home{}) or
@@ -19,5 +20,5 @@ func (app *application) routes() *http.ServeMux {
 	fileServer := http.FileServer(http.Dir("./ui/static/")) // static file server
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	return mux
+	return secureHeaders(mux)
 }

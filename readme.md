@@ -92,3 +92,7 @@ grant select, insert, update, delete on all tables in schema public to web;
 #### html/tmeplate
 - automatically escapes data yielded between {{}} to prevent cross site scripting (XSS)
 - Strips out any html comments in your templates (including conditional comments), help avoid XSS
+
+#### middleware
+1. Act on every request (eg. logging request): middleware -> servemux -> handlers
+2. Act on specific request (eg. auth): servemux -> middleware -> handlers
