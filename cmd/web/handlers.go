@@ -5,15 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	
 	"github.com/kohrongying/snippetbox/internal/models"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	// EDIT: httprouter handles this for us
 	// check if current request path exactly matches "/"
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
+	// if r.URL.Path != "/" {
+	// 	app.notFound(w)
+	// 	return
+	// }
 
 	snippets, err := app.snippets.Latest()
 	if err != nil { 
@@ -27,8 +31,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
+	// EDIT: handled by httprouter
+	// id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(r.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
 		app.notFound(w)
 		return
 	}
@@ -49,13 +56,18 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, http.StatusOK, "view.tmpl", data)
 }
 
-func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request)  {
+	w.Write([]byte("Display the form for creating a new snippet..."))
+}
+
+func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	// EDIT: done by httprouter
 	// check request method
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+	// if r.Method != http.MethodPost {
+	// 	w.Header().Set("Allow", "POST")
+	// 	app.clientError(w, http.StatusMethodNotAllowed)
+	// 	return
+	// }
 
 	title := "0 turt"
 	content := "Turt is climbing mount fuji.\nSlowly and slowly!"
