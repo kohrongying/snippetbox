@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -13,9 +14,10 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *models.SnippetModel
+	errorLog 		*log.Logger
+	infoLog  		*log.Logger
+	snippets 		*models.SnippetModel
+	templateCache 	map[string]*template.Template
 }
 
 func main() {
@@ -29,16 +31,24 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// connect to postgresDB
 	db, err := openDB(*connStr)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
 
+	// initialise new template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)	
+	}
+
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		snippets: &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// Initialise http.Server struct
