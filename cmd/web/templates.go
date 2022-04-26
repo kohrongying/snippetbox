@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"github.com/kohrongying/snippetbox/internal/models"
 )
@@ -11,6 +12,17 @@ import (
 type templateData struct {
 	Snippet 	*models.Snippet
 	Snippets	[]*models.Snippet
+	CurrentYear int
+}
+
+
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+// custom template functions can take multiple parameters but only return one value (+err)
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
 
 func newTemplateCache() (map[string]*template.Template, error)  {
@@ -25,8 +37,9 @@ func newTemplateCache() (map[string]*template.Template, error)  {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		// parse base.tmpl
-		ts, err := template.ParseFiles("./ui/html/base.tmpl")
+		// create empty template set, use Funcs method to register the FuncMap then parse base.tmpl
+		emptyTs := template.New(name)
+		ts, err := emptyTs.Funcs(functions).ParseFiles("./ui/html/base.tmpl")
 		if err != nil {
 			return nil, err
 		}
