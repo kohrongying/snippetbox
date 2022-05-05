@@ -22,7 +22,8 @@ func (app *application) routes() http.Handler {
 	// home -> func (h *home) ServeHTTP(w, r)
 	// servemux doesnt support clean url (view/:id), using httprouter
 	router.HandlerFunc(http.MethodGet, "/snippet/view/:id", app.snippetView) 
-	router.HandlerFunc(http.MethodPost, "/snippet/create", app.snippetCreate)
+	router.HandlerFunc(http.MethodGet, "/snippet/create", app.snippetCreate)
+	router.HandlerFunc(http.MethodPost, "/snippet/create", app.snippetCreatePost)
 
 	// slash is a catch all. eg. /foo, /bash --> home
 	router.HandlerFunc(http.MethodGet, "/", app.home)
