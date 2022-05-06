@@ -17,20 +17,24 @@ func (app *application) routes() http.Handler {
 	})
 
 
+	fileServer := http.FileServer(http.Dir("./ui/static/")) // static file server
+	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
+
+	// middleware chain for dynamic routes
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
 	// same as router.Handle("/", &home{}) or
 	// same as router.Handle("/", http.HandlerFunc(home))
 	// home -> func (h *home) ServeHTTP(w, r)
 	// servemux doesnt support clean url (view/:id), using httprouter
-	router.HandlerFunc(http.MethodGet, "/snippet/view/:id", app.snippetView) 
-	router.HandlerFunc(http.MethodGet, "/snippet/create", app.snippetCreate)
-	router.HandlerFunc(http.MethodPost, "/snippet/create", app.snippetCreatePost)
+	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(app.snippetView)) 
+	router.Handler(http.MethodGet, "/snippet/create", dynamic.ThenFunc(app.snippetCreate))
+	router.Handler(http.MethodPost, "/snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// slash is a catch all. eg. /foo, /bash --> home
-	router.HandlerFunc(http.MethodGet, "/", app.home)
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
 
-	fileServer := http.FileServer(http.Dir("./ui/static/")) // static file server
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
-
+	
 	// create middleware chain
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

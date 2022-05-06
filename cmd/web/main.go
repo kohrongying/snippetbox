@@ -7,9 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/kohrongying/snippetbox/internal/models"
 
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/lib/pq"
 )
@@ -20,6 +23,7 @@ type application struct {
 	snippets 		*models.SnippetModel
 	templateCache 	map[string]*template.Template
 	formDecoder		*form.Decoder
+	sessionManager	*scs.SessionManager
 }
 
 func main() {
@@ -49,12 +53,18 @@ func main() {
 	// initialize form decoder instance
 	formDecoder := form.NewDecoder()
 
+	// initialize session manager
+	sessionManager := scs.New()
+	sessionManager.Store = postgresstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		snippets: &models.SnippetModel{DB: db},
 		templateCache: templateCache,
 		formDecoder: formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	// Initialise http.Server struct

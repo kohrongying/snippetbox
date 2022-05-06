@@ -96,3 +96,21 @@ grant select, insert, update, delete on all tables in schema public to web;
 #### middleware
 1. Act on every request (eg. logging request): middleware -> servemux -> handlers
 2. Act on specific request (eg. auth): servemux -> middleware -> handlers
+
+#### forms
+- form validator as internal package
+- form decoder: go-playground/form/v4
+
+#### session handling
+```sql
+CREATE TABLE sessions (
+    token CHAR(43) PRIMARY KEY,
+    data bytea NOT NULL,
+    expiry TIMESTAMPTZ(6) NOT NULL
+);
+
+CREATE INDEX sessions_expiry_idx ON sessions(expiry);
+```
+
+
+####
