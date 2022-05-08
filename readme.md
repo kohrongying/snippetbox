@@ -113,4 +113,8 @@ CREATE INDEX sessions_expiry_idx ON sessions(expiry);
 ```
 
 
-####
+#### Generating Cert
+```
+ go run /usr/local/go/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
+```
+- Generates a public cert (cert.pem) and private key (key.pem)
