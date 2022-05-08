@@ -47,24 +47,32 @@ func (m *UserModel) Insert(name, email, password string) error {
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	// stmt := `SELECT id, title, content, created, expires FROM snippets
-	// WHERE expires > NOW() and id = $1`
+	var id int
+	var hashedPassword []byte
 
-	// row := m.DB.QueryRow(stmt, id) // returns pointer to sql.Row object
+	stmt := `SELECT id, hashed_password FROM users
+	 WHERE email = $1`
 
-	// s := &Snippet{} // Initialise pointer to a new zeroed Snippet struct
+	err := m.DB.QueryRow(stmt, email).Scan(&id, &hashedPassword)
+	if err != nil {
+		// if id not found, row.Scan returns sql.ErrNoRows error
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, ErrInvalidCredentials
+		} else {
+			return 0, err
+		}
+	}
 
-	// err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
-	// if err != nil {
-	// 	// if id not found, row.Scan returns sql.ErrNoRows error
-	// 	if errors.Is(err, sql.ErrNoRows) {
-	// 		return nil, ErrNoRecord
-	// 	} else {
-	// 		return nil, err
-	// 	}
-	// }
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return 0, ErrInvalidCredentials
+		} else { 
+			return 0, err
+		}
+	}
 	
-	return 1, nil
+	return id, nil
 }
 
 func (m *UserModel) Exists(id int) (bool, error) {
