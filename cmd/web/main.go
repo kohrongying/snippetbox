@@ -90,6 +90,9 @@ func main() {
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
 		TLSConfig: tlsConfig,
+		IdleTimeout: time.Minute, // keep alive connections to close after 1 min
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("Starting server on %s", *addr)
