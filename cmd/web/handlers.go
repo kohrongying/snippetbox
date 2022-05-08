@@ -145,16 +145,25 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	// err = app.users.Insert(form.Name, form.Email, form.Password)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
+	err = app.users.Insert(form.Name, form.Email, form.Password)
+	if err != nil {
+		if (errors.Is(err, models.ErrDuplicateEmail)) {
+			form.AddFieldError("email", "Email already in use")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+		} else {
+			app.serverError(w, err)
+		}
+		
+		return
+	}
 
 	// // Add to session data
-	// app.sessionManager.Put(r.Context(), "flash", "Snippet successfully created!")
+	app.sessionManager.Put(r.Context(), "flash", "Sign up successful. Please log in.")
 
-	// http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 
 }
 

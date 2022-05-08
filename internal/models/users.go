@@ -2,7 +2,11 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"strings"
 	"time"
+	"github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -18,16 +22,26 @@ type UserModel struct {
 }
 
 func (m *UserModel) Insert(name, email, password string) error {
-	
-	// stmt := `INSERT INTO snippets (title, content, created, expires) 
-	// VALUES($1, $2, NOW(), NOW() + INTERVAL '1 DAY' * $3)
-	// RETURNING id;`
 
-	// var id int
-	// err := m.DB.QueryRow(stmt, title, content, expires).Scan(&id)
-	// if err != nil {
-	// 	return 0, err
-	// }
+	// create hash
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return err
+	}
+
+	stmt := `INSERT INTO users (name, email, hashed_password, created) 
+	VALUES($1, $2, $3, NOW())`
+
+	_, err = m.DB.Exec(stmt, name, email, hashedPassword)
+	if err != nil {
+		var pqError *pq.Error
+		if errors.As(err, &pqError) {
+			if pqError.Code == "23505" && strings.Contains(pqError.Message, "users_uc_email") {
+				return ErrDuplicateEmail
+			}
+		}
+		return err
+	}
 
 	return nil
 }
