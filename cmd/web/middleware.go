@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -75,4 +76,33 @@ func noSurf(next http.Handler) http.Handler {
 		Secure: true,
 	})
 	return csrfHandler
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get authenticatedUserID value
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+		
+		// if no "authenticatedUserID" value in session, call next handler
+		if id == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// else, check if user exists in database
+		exists, err := app.users.Exists(id)
+		if err != nil {
+			app.serverError(w, err) 
+		}
+
+		// matching user found in db, authenticated user
+		// create new copy of request with contextkey
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		next.ServeHTTP(w, r)
+	})
+
 }
