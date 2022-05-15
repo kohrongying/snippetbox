@@ -21,7 +21,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	// middleware chain for dynamic routes with session manager
-	dynamic := alice.New(app.sessionManager.LoadAndSave)
+	// add noSurf middleware on all dynamic routes to protect from CSRF
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
 
 	// same as router.Handle("/", &home{}) or
 	// same as router.Handle("/", http.HandlerFunc(home))
